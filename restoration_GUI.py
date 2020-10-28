@@ -1,4 +1,6 @@
-from PyQt5.QtWidgets import QMainWindow, QLabel, QPushButton, QAction, QFileDialog
+import sys
+
+from PyQt5.QtWidgets import QMainWindow, QLabel, QPushButton, QAction, QFileDialog, QApplication
 from PyQt5.QtGui import  QPixmap, QFont
 from PyQt5.QtCore import Qt
 
@@ -11,6 +13,7 @@ from cv2 import *
 from data_preprocessing import predict, convert_cv_qt
 from SRCNN_model import model
 from keras import backend
+
 
 
 class Window(QMainWindow):
@@ -27,6 +30,7 @@ class Window(QMainWindow):
 #            self.setWindowIcon(QIcon("icon.jpg"))           
                          
             self.showMenubar()
+            self.center()
             
             self.labels()   
             
@@ -43,6 +47,12 @@ class Window(QMainWindow):
       def __del__(self):
             del self.model 
             backend.clear_session()
+
+      # center setting
+      def center(self):
+            screen = QDesktopWidget().screenGeometry()
+            size = self.geometry()
+            self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
             
             
       def showMenubar(self):
@@ -121,7 +131,6 @@ class Window(QMainWindow):
             self.saveBtn.move(800,40)
             
             self.saveBtn.clicked.connect(self.saveBtnFunction)
-      
           
       def setInputPixmap(self, pixmap):   
             smaller_pixmap = pixmap.scaled(400, 400, Qt.KeepAspectRatio, Qt.FastTransformation)
@@ -155,4 +164,11 @@ class Window(QMainWindow):
             # self.srcnn_qt.save(self.imagePath.split("/")[-1], format="bmp")
 
 
+
+if __name__ == '__main__':
       
+      app = QApplication(sys.argv)
+    
+      windowObject = Window()
+
+      sys.exit(app.exec_())
