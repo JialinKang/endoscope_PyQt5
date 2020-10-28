@@ -10,7 +10,6 @@ from cv2 import *
 
 class ShowVideo(QtCore.QObject):
 
-	#initiating the built in camera
 	camera_port = 0
 	camera = cv2.VideoCapture(camera_port)
 	VideoSignal = QtCore.pyqtSignal(QtGui.QImage)
@@ -78,8 +77,6 @@ class ImageViewer(QtWidgets.QWidget):
 		super(ImageViewer, self).__init__(parent)
 		self.image = QtGui.QImage()
 		self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
-
-
 
 	def paintEvent(self, event):
 		painter = QtGui.QPainter(self)

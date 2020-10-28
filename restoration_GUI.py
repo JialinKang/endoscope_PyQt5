@@ -27,7 +27,7 @@ class Window(QMainWindow):
             
             self.setWindowTitle("Endoscope Image Restoration & Enhancement")
             self.setGeometry(200, 200, self.width, self.height)
-#            self.setWindowIcon(QIcon("icon.jpg"))           
+            self.setWindowIcon(QIcon("./tsinghuaIcon.png"))           
                          
             self.showMenubar()
             self.center()

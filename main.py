@@ -1,9 +1,9 @@
 import sys
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QDesktopWidget, QHBoxLayout, QWidget
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
 
-from main_form import Ui_Menu
+# from main_form import Ui_Menu
 
 from restoration_GUI import Window
 from video import VideoBox
@@ -14,24 +14,31 @@ class MyWidget(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # self.width = 600
-        # self.height = 500
-
         self.setWindowTitle('Endoscope Image Restoration & Enhancement')
+        self.setWindowIcon(QtGui.QIcon("./tsinghuaIcon.png"))
         self.resize(1200, 900)
 
         self.center()
 
-        self.buttonWindow1 = QPushButton('Image Function', self)
-        self.buttonWindow1.setGeometry(QtCore.QRect(500, 80, 200, 50))
+        font = QtGui.QFont()
+        font.setFamily('Franklin Gothic Mdeium')
+        font.setPointSize(22)
+        font.setBold(True)
+        font.setWeight(50)
+
+        self.buttonWindow1 = QPushButton('Image Restoration', self)
+        self.buttonWindow1.setGeometry(QtCore.QRect(400, 150, 400, 100))
+        self.buttonWindow1.setFont(font)
         self.buttonWindow1.clicked.connect(self.imageFunction_onClick)
         
-        self.buttonWindow2 = QPushButton('Video Function', self)
-        self.buttonWindow2.setGeometry(QtCore.QRect(200, 180, 200, 50))
+        self.buttonWindow2 = QPushButton('Video Restortion', self)
+        self.buttonWindow2.setGeometry(QtCore.QRect(400, 350, 400, 100))
+        self.buttonWindow2.setFont(font)
         self.buttonWindow2.clicked.connect(self.videoFunction_onClick)
 
-        self.buttonWindow3 = QPushButton('Real Time Video', self)
-        self.buttonWindow3.setGeometry(QtCore.QRect(200, 280, 200, 50))
+        self.buttonWindow3 = QPushButton('Realtime Video', self)
+        self.buttonWindow3.setGeometry(QtCore.QRect(400, 550, 400, 100))
+        self.buttonWindow3.setFont(font)
         self.buttonWindow3.clicked.connect(self.realtimeVideo_onClick)
         self.show()
         self.cams = -1
