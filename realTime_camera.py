@@ -27,12 +27,6 @@ class ShowVideo(QtCore.QObject):
 			
 			color_swapped_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-			# b, g, r = cv2.split(color_swapped_image)
-			# b_equal = equalizeHist(b)
-			# g_equal = equalizeHist(g)
-			# r_equal = equalizeHist(r)
-			# result = merge([b_equal, g_equal, r_equal])
-
 			height, width, _ = color_swapped_image.shape
 			
 			qt_image = QtGui.QImage(color_swapped_image.data,
@@ -41,22 +35,12 @@ class ShowVideo(QtCore.QObject):
 			  						color_swapped_image.strides[0],
 			   						QtGui.QImage.Format_RGB888)
 
-			# qt_image2 = QtGui.QImage(result,
-			# 						width, 
-			# 						height,
-			# 						color_swapped_image.strides[0],
-			# 						QtGui.QImage.Format_RGB888)
-
 			pixmap = QtGui.QPixmap(qt_image)
-			qt_image = pixmap.scaled(750, 600, QtCore.Qt.KeepAspectRatio)
-			qt_image = QtGui.QImage(qt_image)
-
-			# pixmap2 = QtGui.QPixmap(qt_image2)
-			# qt_image2 = pixmap2.scaled(750, 600, QtCore.Qt.KeepAspectRatio)
-			# qt_image2 = QtGui.QImage(qt_image2)
+			# qt_image = pixmap.scaled(750, 600, QtCore.Qt.KeepAspectRatio)
+			# qt_image = QtGui.QImage(qt_image)
+			qt_image = QtGui.QImage(pixmap)
 
 			self.VideoSignal.emit(qt_image)
-			# self.VideoSignal.emit(qt_image2)
 
 	def startVideo2(self):
     
@@ -73,12 +57,6 @@ class ShowVideo(QtCore.QObject):
 			result = merge([b_equal, g_equal, r_equal])
 
 			height, width, _ = color_swapped_image.shape
-			
-			# qt_image = QtGui.QImage(color_swapped_image.data,
-			# 						width, 
-			# 						height,
-			#   						color_swapped_image.strides[0],
-			#    						QtGui.QImage.Format_RGB888)
 
 			qt_image2 = QtGui.QImage(result,
 									width, 
@@ -86,15 +64,11 @@ class ShowVideo(QtCore.QObject):
 									color_swapped_image.strides[0],
 									QtGui.QImage.Format_RGB888)
 
-			# pixmap = QtGui.QPixmap(qt_image)
-			# qt_image = pixmap.scaled(750, 600, QtCore.Qt.KeepAspectRatio)
-			# qt_image = QtGui.QImage(qt_image)
-
 			pixmap2 = QtGui.QPixmap(qt_image2)
-			qt_image2 = pixmap2.scaled(750, 600, QtCore.Qt.KeepAspectRatio)
-			qt_image2 = QtGui.QImage(qt_image2)
+			# qt_image2 = pixmap2.scaled(750, 600, QtCore.Qt.KeepAspectRatio)
+			# qt_image2 = QtGui.QImage(qt_image2)
+			qt_image2 = QtGui.QImage(pixmap2)
 
-			# self.VideoSignal.emit(qt_image)
 			self.VideoSignal.emit(qt_image2)
 
 
@@ -141,13 +115,9 @@ if __name__ == '__main__':
 	vid2.moveToThread(thread2)
 	image_viewer = ImageViewer()
 	image_viewer2 = ImageViewer()
-	#image_viewer.resize(200,400)
-	
 
 	vid.VideoSignal.connect(image_viewer.setImage)
 	vid2.VideoSignal.connect(image_viewer2.setImage)
-
-	#Button to start the videocapture:
 
 	push_button = QtWidgets.QPushButton('Original')
 	push_button.clicked.connect(vid.startVideo)
