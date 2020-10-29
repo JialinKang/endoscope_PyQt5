@@ -3,7 +3,9 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QDesktopWidget, QHBoxLayout, QWidget
 from PyQt5 import QtCore, QtGui
 
-# from main_form import Ui_Menu
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 from restoration_GUI import Window
 from video import VideoBox
@@ -58,7 +60,7 @@ class MyWidget(QMainWindow):
 
     def videoFunction_onClick(self):
         self.cams = VideoBox()
-        self.cams.set_video('./1.mp4', VideoBox.VIDEO_TYPE_OFFLINE, False)
+        self.cams.set_video('./endoscope.mp4', VideoBox.VIDEO_TYPE_OFFLINE, False)
         self.cams.resize(1200,900)
         self.cams.move(int((self.screen.width() - self.size.width()) / 2),
                        int((self.screen.height() - self.size.height()) / 2))
@@ -81,22 +83,48 @@ class MyWidget(QMainWindow):
         self.vid1.VideoSignal.connect(self.image_viewer1.setImage)
         self.vid2.VideoSignal.connect(self.image_viewer2.setImage)
 
-        self.push_button1 = QPushButton('Original')
-        self.push_button1.clicked.connect(self.vid1.startVideo)
-        self.push_button2 = QPushButton('Restored')
-        self.push_button2.clicked.connect(self.vid2.startVideo2)
         self.vertical_layout = QHBoxLayout()
 
         self.vertical_layout.addWidget(self.image_viewer1)
         self.vertical_layout.addWidget(self.image_viewer2)
-        self.vertical_layout.addWidget(self.push_button1)
-        self.vertical_layout.addWidget(self.push_button2)
 
         self.layout_widget = QWidget()
         self.layout_widget.setLayout(self.vertical_layout)
 
         self.cams = QMainWindow()
         self.cams.setCentralWidget(self.layout_widget)
+        self.cams.setWindowTitle('Endoscope Image Restoration & Enhancement')
+        self.cams.setWindowIcon(QIcon("./tsinghuaIcon.png")) 
+
+        # Menu
+        self.cams.menu = self.cams.menuBar()
+        # Play Menu
+        self.playMenu = self.cams.menu.addMenu('Play')
+        self.originalAction = QAction('Original Play', self)
+        self.playMenu.addAction(self.originalAction)
+        self.originalAction.triggered.connect(self.vid1.startVideo)
+        # Distoration Menu
+        self.corrMenu = self.cams.menu.addMenu('Distoration-Correction')
+        self.corrAction = QAction('Distoration-Correction', self)
+        self.corrMenu.addAction(self.corrAction)
+        # Hist-Normalized Menu
+        self.histMenu = self.cams.menu.addMenu('Hist-Normalized')
+        self.restorationAction = QAction('Hist-Normalized', self)
+        self.histMenu.addAction(self.restorationAction)
+        self.restorationAction.triggered.connect(self.vid2.startVideo2)
+        # Denoising Menu
+        self.denoiseMenu = self.cams.menu.addMenu('Denoising')
+        self.denoiseAction = QAction('Denoising', self)
+        self.denoiseMenu.addAction(self.denoiseAction)
+        # Highlight Removal Menu
+        self.highMenu = self.cams.menu.addMenu('Highlight-Removal')
+        self.highAction = QAction('Highlight-Removal', self)
+        self.highMenu.addAction(self.highAction)
+        # Super Resulotion Menu
+        self.superMenu = self.cams.menu.addMenu('Super-Resolution')
+        self.superAction = QAction('Super-Resolution', self)
+        self.superMenu.addAction(self.superAction)
+
         self.cams.resize(1200,900)
         self.cams.move(int((self.screen.width() - self.size.width()) / 2),
                        int((self.screen.height() - self.size.height()) / 2))

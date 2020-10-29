@@ -3,11 +3,14 @@ import sys
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QWidget, QMainWindow, QApplication, QLabel, QPushButton, QStyle, QHBoxLayout, QDesktopWidget, QAction
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from cv2 import *
 
 
-class VideoBox(QWidget):
+class VideoBox(QMainWindow):
 
     VIDEO_TYPE_OFFLINE = 0
     VIDEO_TYPE_REAL_TIME = 1
@@ -19,45 +22,49 @@ class VideoBox(QWidget):
     video_url = ""
 
     def __init__(self, video_url="", video_type=VIDEO_TYPE_OFFLINE, auto_play=False):
-        QWidget.__init__(self)
+        super().__init__()
         self.video_url = video_url
         self.video_type = video_type  # 0: offline  1: realTime
         self.auto_play = auto_play
         self.status = self.STATUS_INIT  # 0: init 1:playing 2: pause
 
-        # 组件展示
-        self.pictureLabel = QLabel()
-        init_image = QPixmap("./snapshot.png")#.scaled(self.width(), self.height())
-        self.pictureLabel.setPixmap(init_image)
+        self.setWindowTitle('Endoscope Image Restoration & Enhancement')
+        self.setWindowIcon(QIcon("./tsinghuaIcon.png")) 
 
-        # 组件展示2
-        self.pictureLabel2 = QLabel()
-        init_image = QPixmap("./snapshot.png")
-        # self.pictureLabel2.move(500, 500)
-        self.pictureLabel2.setPixmap(init_image)
+        self.pictureLabel = QLabel(self)
+        self.pictureLabel.resize(800, 600)
+        self.pictureLabel.move(0, 20)
+        self.init_image = QPixmap("./endoscope.bmp")#.scaled(400, 400)
+        self.pictureLabel.setPixmap(self.init_image)
 
-        self.playButton = QPushButton()
+        self.pictureLabel2 = QLabel(self)
+        self.pictureLabel2.resize(800, 600)
+        self.pictureLabel2.move(600, 20)
+        self.init_image = QPixmap("./endoscope.bmp")#.scaled(400, 400)
+        self.pictureLabel2.setPixmap(self.init_image)
+
+        self.playButton = QPushButton(self)
+        self.playButton.move(300, 800)
         self.playButton.setEnabled(True)
         self.playButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
         self.playButton.clicked.connect(self.switch_video)
 
-        control_box = QHBoxLayout()
-        control_box.setContentsMargins(0, 0, 0, 0)
-        control_box.addWidget(self.playButton)
+        self.control_box = QHBoxLayout(self)
+        self.control_box.setContentsMargins(0, 0, 0, 0)
+        self.control_box.addWidget(self.playButton)
 
-        layout = QHBoxLayout()
-        layout.addWidget(self.pictureLabel)
-        layout.addWidget(self.pictureLabel2)
-        layout.addLayout(control_box)
+        self.layout = QHBoxLayout(self)
+        self.layout.addWidget(self.pictureLabel)
+        self.layout.addWidget(self.pictureLabel2)
+        self.layout.addLayout(self.control_box)
+
+        self.showMenubar()
         
+        self.setLayout(self.layout)
 
-        self.setLayout(layout)
-
-        # timer 设置
         self.timer = VideoTimer()
         self.timer.timeSignal.signal[str].connect(self.show_video_images)
 
-        # video 初始设置
         self.playCapture = VideoCapture()
         if self.video_url != "":
             self.set_timer_fps()
@@ -65,6 +72,43 @@ class VideoBox(QWidget):
                 self.switch_video()
             # self.videoWriter = VideoWriter('*.mp4', VideoWriter_fourcc('M', 'J', 'P', 'G'), self.fps, size)
 
+    def showMenubar(self):
+        self.menu = self.menuBar()
+
+        # File Menu
+        self.fileMenu = self.menu.addMenu('File')
+        self.openAction = QAction('Open', self)
+        self.fileMenu.addAction(self.openAction)
+        self.openAction.triggered.connect(self.openVideo)
+        # # Distoration Menu
+        # distormenu = menu.addMenu('Distoration-Correction')
+        # distorAction = QAction('Distoration-Correction', self)
+        # distormenu.addAction(distorAction)
+        # # Histnormalized Menu
+        # histmenu = menu.addMenu('Hist-Normalized')
+        # histAction = QAction('Hist-Normalized', self)
+        # histmenu.addAction(histAction)
+        # # Denoising Menu
+        # denoisemenu = menu.addMenu('Denoising')
+        # denoiseAction = QAction('Denoising', self)
+        # denoisemenu.addAction(denoiseAction)
+        # # Highlight Menu
+        # highmenu = menu.addMenu('Hightlight-Removal')
+        # highAction = QAction('Hightlight-Removal', self)
+        # highmenu.addAction(highAction)
+        # # Super Resolution
+        # superMenu = menu.addMenu('Super-Resolution')
+        # superAction = QAction('Super-Resolution', self)
+        # superMenu.addMenu(superAction)
+
+    def openVideo(self):
+        self.videoPath, _ = QFileDialog.getOpenFileName(self)
+        self.set_video(self.videoPath, VideoBox.VIDEO_TYPE_OFFLINE, False)
+
+    def center(self):
+        screen = QDesktopWidget.screenGeometry()
+        size = self.geometry()
+        self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
 
     def reset(self):
         self.timer.stop()
@@ -140,7 +184,7 @@ class VideoBox(QWidget):
                 print("read failed, no frame data")
                 success, frame = self.playCapture.read()
                 if not success and self.video_type is VideoBox.VIDEO_TYPE_OFFLINE:
-                    print("play finished")  # 判断本地文件播放完毕
+                    print("play finished")
                     self.reset()
                     self.playButton.setIcon(self.style().standardIcon(QStyle.SP_MediaStop))
                 return
@@ -209,6 +253,6 @@ class VideoTimer(QThread):
 if __name__ == "__main__":
     mapp = QApplication(sys.argv)
     mw = VideoBox()
-    mw.set_video("./1.mp4", VideoBox.VIDEO_TYPE_OFFLINE, False)
+    mw.set_video("./endoscope.mp4", VideoBox.VIDEO_TYPE_OFFLINE, False)
     mw.show()
     sys.exit(mapp.exec_())

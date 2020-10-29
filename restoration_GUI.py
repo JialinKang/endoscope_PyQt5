@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QLabel, QPushButton, QAction, QFileDialog, QApplication
+from PyQt5.QtWidgets import QMainWindow, QLabel, QPushButton, QAction, QFileDialog, QApplication, QDesktopWidget
 from PyQt5.QtGui import  QPixmap, QFont
 from PyQt5.QtCore import Qt
 
@@ -20,13 +20,8 @@ class Window(QMainWindow):
       
       def __init__(self):
             super().__init__()
-            
-            # main window
-            self.width = 950
-            self.height = 500
-            
             self.setWindowTitle("Endoscope Image Restoration & Enhancement")
-            self.setGeometry(200, 200, self.width, self.height)
+            self.resize(1200, 900)
             self.setWindowIcon(QIcon("./tsinghuaIcon.png"))           
                          
             self.showMenubar()
@@ -48,7 +43,6 @@ class Window(QMainWindow):
             del self.model 
             backend.clear_session()
 
-      # center setting
       def center(self):
             screen = QDesktopWidget().screenGeometry()
             size = self.geometry()
@@ -58,41 +52,33 @@ class Window(QMainWindow):
       def showMenubar(self):
             menu = self.menuBar()
             
-            # file mune
+            # File Mune
             fileMenu = menu.addMenu('File')
-            # open
             openAction = QAction('Open', self)  
             fileMenu.addAction(openAction)
             openAction.triggered.connect(self.openImage)
-            # save
             saveAction = QAction('Save', self)
             fileMenu.addAction(saveAction)
             # saveAction.triggered.connect(self.openImage)
-
-            # distortion menu
-            distormenu = menu.addMenu('Distortion-Correction')
-            # Distortion Correction
-            distroAction = QAction('Distortion-Correction', self)
+            # Distoration Menu
+            distormenu = menu.addMenu('Distoration-Correction')
+            distroAction = QAction('Distoration-Correction', self)
             distormenu.addAction(distroAction)
-            # histnormalized
+            # Histnormalized Menu
+            histmenu = menu.addMenu('Hist-Mormalized')
             histAction = QAction('Hist-Normalized', self)
-            distormenu.addAction(histAction)
+            histmenu.addAction(histAction)
             histAction.triggered.connect(self.histNormalized)
-
-            # denoising
+            # Denoising Menu
             denoisingmenu = menu.addMenu('Denoising')
-            # denoising
             denoisingAction = QAction('Denoising', self)
             denoisingmenu.addAction(denoisingAction)
-
-            # highlight removal
-            highlightmenu = menu.addMenu('Highlight-removal')
-            # highlight removal
-            hightlightAction = QAction('Hightlight', self)
+            # Highlight Removal Menu
+            highlightmenu = menu.addMenu('Highlight-Removal')
+            hightlightAction = QAction('Hightlight-Removal', self)
             highlightmenu.addAction(hightlightAction)
-
-            # restoration menu
-            ResMenu = menu.addMenu('Super-resolution')
+            # Super Resolution Menu
+            ResMenu = menu.addMenu('Super-Resolution')
             SRCNNAction = QAction('SRCNN', self)  
             ResMenu.addAction(SRCNNAction)
             SRCNNAction.triggered.connect(self.SRCNNImage)
