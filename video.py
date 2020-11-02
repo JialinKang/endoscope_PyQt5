@@ -32,15 +32,15 @@ class VideoBox(QMainWindow):
         self.setWindowIcon(QIcon("./tsinghuaIcon.png")) 
 
         self.pictureLabel = QLabel(self)
-        self.pictureLabel.resize(800, 600)
-        self.pictureLabel.move(0, 20)
-        self.init_image = QPixmap("./endoscope.bmp")#.scaled(400, 400)
+        self.pictureLabel.resize(600, 600)
+        self.pictureLabel.move(100, 20)
+        self.init_image = QPixmap("./original.png")#.scaled(400, 400)
         self.pictureLabel.setPixmap(self.init_image)
 
         self.pictureLabel2 = QLabel(self)
-        self.pictureLabel2.resize(800, 600)
-        self.pictureLabel2.move(600, 20)
-        self.init_image = QPixmap("./endoscope.bmp")#.scaled(400, 400)
+        self.pictureLabel2.resize(600, 600)
+        self.pictureLabel2.move(650, 20)
+        self.init_image = QPixmap("./output.png")#.scaled(400, 400)
         self.pictureLabel2.setPixmap(self.init_image)
 
         self.playButton = QPushButton(self)
@@ -80,26 +80,26 @@ class VideoBox(QMainWindow):
         self.openAction = QAction('Open', self)
         self.fileMenu.addAction(self.openAction)
         self.openAction.triggered.connect(self.openVideo)
-        # # Distoration Menu
-        # distormenu = menu.addMenu('Distoration-Correction')
-        # distorAction = QAction('Distoration-Correction', self)
-        # distormenu.addAction(distorAction)
-        # # Histnormalized Menu
-        # histmenu = menu.addMenu('Hist-Normalized')
-        # histAction = QAction('Hist-Normalized', self)
-        # histmenu.addAction(histAction)
-        # # Denoising Menu
-        # denoisemenu = menu.addMenu('Denoising')
-        # denoiseAction = QAction('Denoising', self)
-        # denoisemenu.addAction(denoiseAction)
-        # # Highlight Menu
-        # highmenu = menu.addMenu('Hightlight-Removal')
-        # highAction = QAction('Hightlight-Removal', self)
-        # highmenu.addAction(highAction)
-        # # Super Resolution
-        # superMenu = menu.addMenu('Super-Resolution')
-        # superAction = QAction('Super-Resolution', self)
-        # superMenu.addMenu(superAction)
+        # Distoration Menu
+        self.distormenu = self.menu.addMenu('Distoration-Correction')
+        self.distorAction = QAction('Distoration-Correction', self)
+        self.distormenu.addAction(self.distorAction)
+        # Histnormalized Menu
+        self.histmenu = self.menu.addMenu('Hist-Normalized')
+        self.histAction = QAction('Hist-Normalized', self)
+        self.histmenu.addAction(self.histAction)
+        # Denoising Menu
+        self.denoisemenu = self.menu.addMenu('Denoising')
+        self.denoiseAction = QAction('Denoising', self)
+        self.denoisemenu.addAction(self.denoiseAction)
+        # Highlight Menu
+        self.highmenu = self.menu.addMenu('Hightlight-Removal')
+        self.highAction = QAction('Hightlight-Removal', self)
+        self.highmenu.addAction(self.highAction)
+        # Super Resolution
+        self.supermenu = self.menu.addMenu('Super-Resolution')
+        self.superAction = QAction('Super-Resolution', self)
+        self.supermenu.addAction(self.superAction)
 
     def openVideo(self):
         self.videoPath, _ = QFileDialog.getOpenFileName(self)
