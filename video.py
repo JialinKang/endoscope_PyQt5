@@ -9,6 +9,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from cv2 import *
 
+from data_preprocessing import predict_img, convert_cv_qt
+from SRCNN_model import model
+
 
 class VideoBox(QMainWindow):
 
@@ -58,12 +61,14 @@ class VideoBox(QMainWindow):
         self.layout.addWidget(self.pictureLabel2)
         self.layout.addLayout(self.control_box)
 
+        self.model = model()
+
         self.showMenubar()
         
         self.setLayout(self.layout)
 
         self.timer = VideoTimer()
-        self.timer.timeSignal.signal[str].connect(self.show_video_images)
+        self.timer.timeSignal.signal[str].connect(self.srcnn_img)
 
         self.playCapture = VideoCapture()
         if self.video_url != "":
@@ -160,6 +165,37 @@ class VideoBox(QMainWindow):
         self.playButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
         self.status = VideoBox.STATUS_PLAYING
 
+    def srcnn_img(self):
+        if self.playCapture.isOpened():
+            success, frame = self.playCapture.read()
+            if success:
+                height, width = frame.shape[:2]
+                if frame.ndim == 3:
+                    rgb = cvtColor(frame, COLOR_BGR2RGB)
+                elif frame.ndim == 2:
+                    rgb = cvtColor(frame, COLOR_GRAY2BGR)
+
+                ret_model = self.model.get_model()
+                result = predict_img(frame, ret_model)
+                
+                temp_image = QImage(rgb.flatten(), width, height, QImage.Format_RGB888)
+                temp_pixmap = QPixmap.fromImage(temp_image)
+                temp_image2 = QImage(result.flatten(), width, height, QImage.Format_RGB888)
+                temp_pixmap2 = QPixmap.fromImage(temp_image2)
+                self.pictureLabel.setPixmap(temp_pixmap)
+                self.pictureLabel2.setPixmap(temp_pixmap2)
+            else:
+                print("read failed, no frame data")
+                success, frame = self.playCapture.read()
+                if not success and self.video_type is VideoBox.VIDEO_TYPE_OFFLINE:
+                    print("play finished")
+                    self.reset()
+                    self.playButton.setIcon(self.style().standardIcon(QStyle.SP_MediaStop))
+                return
+        else:
+            print("open file or capturing device error, init again")
+            self.reset()
+
     def show_video_images(self):
         if self.playCapture.isOpened():
             success, frame = self.playCapture.read()
@@ -177,10 +213,10 @@ class VideoBox(QMainWindow):
                 result = merge([r_equal, g_equal, b_equal])
                 temp_image = QImage(rgb.flatten(), width, height, QImage.Format_RGB888)
                 temp_pixmap = QPixmap.fromImage(temp_image)
-                # temp_image2 = QImage(result.flatten(), width, height, QImage.Format_RGB888)
-                # temp_pixmap2 = QPixmap.fromImage(temp_image2)
+                temp_image2 = QImage(result.flatten(), width, height, QImage.Format_RGB888)
+                temp_pixmap2 = QPixmap.fromImage(temp_image2)
                 self.pictureLabel.setPixmap(temp_pixmap)
-                # self.pictureLabel2.setPixmap(temp_pixmap2)
+                self.pictureLabel2.setPixmap(temp_pixmap2)
             else:
                 print("read failed, no frame data")
                 success, frame = self.playCapture.read()

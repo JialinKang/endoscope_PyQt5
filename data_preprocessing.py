@@ -83,6 +83,38 @@ def predict(image_path, model):
     # return predict
     return output
 
+def predict_img(image, model):
+    
+    # load the degraded and reference images
+    degraded = image
+    
+    # preprocess the image with modcrop
+    degraded_mod = modcrop(degraded, 3)
+    
+    # convert the image to YCrCb - (srcnn trained on Y channel)
+    temp = cv2.cvtColor(degraded_mod, cv2.COLOR_BGR2YCrCb)
+    
+    # create image slice and normalize  
+    Y = np.zeros((1, temp.shape[0], temp.shape[1], 1), dtype=float)
+    Y[0, :, :, 0] = temp[:, :, 0].astype(float) / 255.0
+    
+    # perform super-resolution with srcnn
+    pre = model.predict(Y, batch_size=1)
+    
+    # post-process output
+    pre *= 255
+    pre[pre[:] > 255] = 255
+    pre[pre[:] < 0] = 0
+    pre = pre.astype(np.uint8)
+    
+    # copy Y channel back to image and convert to BGR
+    temp = shave(temp, 6)
+    temp[:, :, 0] = pre[0, :, :, 0]
+    output = cv2.cvtColor(temp, cv2.COLOR_YCrCb2BGR)
+
+    # return predict
+    return output
+
 def convert_cv_qt(cv_img):
       # Convert from an opencv image to QPixmap
       rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)

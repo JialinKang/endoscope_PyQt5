@@ -14,6 +14,9 @@ from data_preprocessing import predict, convert_cv_qt
 from SRCNN_model import model
 from keras import backend
 
+import cv2
+import numpy as np
+
 
 
 class Window(QMainWindow):
@@ -62,8 +65,9 @@ class Window(QMainWindow):
             # saveAction.triggered.connect(self.openImage)
             # Distoration Menu
             distormenu = menu.addMenu('Distoration-Correction')
-            distroAction = QAction('Distoration-Correction', self)
-            distormenu.addAction(distroAction)
+            distorAction = QAction('Distoration-Correction', self)
+            distormenu.addAction(distorAction)
+            distorAction.triggered.connect(self.undistort)
             # Histnormalized Menu
             histmenu = menu.addMenu('Hist-Mormalized')
             histAction = QAction('Hist-Normalized', self)
@@ -85,7 +89,7 @@ class Window(QMainWindow):
             
             
       def openImage(self):
-            self.imagePath, _ = QFileDialog.getOpenFileName(self, filter="Image Files (*.jpg *.bmp *.png *.mp4)")
+            self.imagePath, _ = QFileDialog.getOpenFileName(self, filter="Image Files (*.jpg *.bmp *.png *.mp4 *.tiff)")
             pixmap = QPixmap(self.imagePath)
             self.setInputPixmap(pixmap)
             
@@ -134,6 +138,29 @@ class Window(QMainWindow):
             self.srcnn_qt = convert_cv_qt(srcnn_BGR)
             self.setOutputPixmap(self.srcnn_qt)
 
+      def undistort(self):
+            frame = cv2.imread(self.imagePath)
+            fx = 959.4900
+            cx = 1059.5
+            fy = 960.3653
+            cy = 608.9216
+            k1, k2, p1, p2, k3 = -0.3982, 0.1373, 0.0, 0.0, 0.0
+
+            k = np.array([
+            [fx, 0, cx],
+            [0, fy, cy],
+            [0, 0, 1]
+            ])
+            
+            d = np.array([
+                  k1, k2, p1, p2, k3
+            ])
+            h, w = frame.shape[:2]
+            mapx, mapy = cv2.initUndistortRectifyMap(k, d, None, k, (w, h), 5)
+            undistor_BGR = cv2.remap(frame, mapx, mapy, cv2.INTER_LINEAR)
+            self.srcnn_qt = convert_cv_qt(undistor_BGR)
+            self.setOutputPixmap(self.srcnn_qt)
+
       def histNormalized(self):
             img = imread(self.imagePath)
             b, g, r = split(img)
@@ -145,7 +172,7 @@ class Window(QMainWindow):
             self.setOutputPixmap(self.srcnn_qt)
 
       def saveBtnFunction(self):
-            self.imagePath, _ = QFileDialog.getSaveFileName(self, filter="Image Files (*.jpg *.bmp *.png *.mp4)")
+            self.imagePath, _ = QFileDialog.getSaveFileName(self, filter="Image Files (*.jpg *.bmp *.png *.mp4 *.tiff)")
             self.srcnn_qt.save(self.imagePath, format="bmp")
             # self.srcnn_qt.save(self.imagePath.split("/")[-1], format="bmp")
 
