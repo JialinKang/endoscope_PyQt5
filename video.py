@@ -88,6 +88,7 @@ class VideoBox(QMainWindow):
         self.histmenu = self.menu.addMenu('Hist-Normalized')
         self.histAction = QAction('Hist-Normalized', self)
         self.histmenu.addAction(self.histAction)
+        self.histAction.triggered.connect(self.show_video_images)
         # Denoising Menu
         self.denoisemenu = self.menu.addMenu('Denoising')
         self.denoiseAction = QAction('Denoising', self)
@@ -169,14 +170,42 @@ class VideoBox(QMainWindow):
                 elif frame.ndim == 2:
                     rgb = cvtColor(frame, COLOR_GRAY2BGR)
 
-                b, g, r = split(rgb)
-                b_equal = equalizeHist(b)
-                g_equal = equalizeHist(g)
+                r, g, b = split(rgb)
                 r_equal = equalizeHist(r)
-                result = merge([b_equal, g_equal, r_equal])
+                g_equal = equalizeHist(g)
+                b_equal = equalizeHist(b)
+                result = merge([r_equal, g_equal, b_equal])
                 temp_image = QImage(rgb.flatten(), width, height, QImage.Format_RGB888)
                 temp_pixmap = QPixmap.fromImage(temp_image)
-                temp_image2 = QImage(result.flatten(), width, height, QImage.Format_RGB888)
+                # temp_image2 = QImage(result.flatten(), width, height, QImage.Format_RGB888)
+                # temp_pixmap2 = QPixmap.fromImage(temp_image2)
+                self.pictureLabel.setPixmap(temp_pixmap)
+                # self.pictureLabel2.setPixmap(temp_pixmap2)
+            else:
+                print("read failed, no frame data")
+                success, frame = self.playCapture.read()
+                if not success and self.video_type is VideoBox.VIDEO_TYPE_OFFLINE:
+                    print("play finished")
+                    self.reset()
+                    self.playButton.setIcon(self.style().standardIcon(QStyle.SP_MediaStop))
+                return
+        else:
+            print("open file or capturing device error, init again")
+            self.reset()
+
+    def CopyPlay(self):
+        if self.playCapture.isOpened():
+            success, frame = self.playCapture.read()
+            if success:
+                height, width = frame.shape[:2]
+                if frame.ndim == 3:
+                    rgb = cvtColor(frame, COLOR_BGR2RGB)
+                elif frame.ndim == 2:
+                    rgb = cvtColor(frame, COLOR_GRAY2BGR)
+
+                temp_image = QImage(rgb.flatten(), width, height, QImage.Format_RGB888)
+                temp_pixmap = QPixmap.fromImage(temp_image)
+                temp_image2 = QImage(rgb.flatten(), width, height, QImage.Format_RGB888)
                 temp_pixmap2 = QPixmap.fromImage(temp_image2)
                 self.pictureLabel.setPixmap(temp_pixmap)
                 self.pictureLabel2.setPixmap(temp_pixmap2)
